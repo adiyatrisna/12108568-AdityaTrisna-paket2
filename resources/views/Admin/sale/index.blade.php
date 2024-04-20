@@ -11,7 +11,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Customer</th>
+                        <th>Customer</th>   
                         <th>Total Price</th>
                         <th>Date</th>
                         <th>Action</th>

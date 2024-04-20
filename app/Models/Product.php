@@ -9,7 +9,7 @@ class Product extends Model
 {
     use HasFactory;
     protected $table = 'product';
-    protected $fillbale = ([
+    protected $fillable = ([
         "NmProduct",
         "Harga",
         "Stok",

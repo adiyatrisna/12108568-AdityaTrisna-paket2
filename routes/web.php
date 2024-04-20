@@ -34,4 +34,13 @@ Route::middleware('auth')->group(function () {
     Route::get('sale/create', [AdminController::class,'createSale'])->name('createSale');
     Route::post('sale/store', [AdminController::class,'storeSale'])->name('storeSale');
     Route::get('sale/detail/{id}', [AdminController::class,'detailSale'])->name('detailSale');
+    Route::get('sale/detail/export-pdf/{id}', [AdminController::class, 'exportPDF'])->name('detailSale.export-pdf');
+
+
+    Route::get('user/index', [AdminController::class,'indexUser'])->name('indexUser');
+    Route::get('user/create', [AdminController::class,'createUser'])->name('createUser');
+    Route::post('user/store', [AdminController::class,'storeUser'])->name('storeUser');
+    Route::get('user/edit/{id}', [AdminController::class,'editUser'])->name('editUser');
+    Route::post('user/update/{id}', [AdminController::class,'updateUser'])->name('updateUser');
+    Route::get('user/delete/{id}', [AdminController::class,'deleteUser'])->name('deleteUser');
 });

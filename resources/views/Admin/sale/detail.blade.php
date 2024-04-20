@@ -30,7 +30,8 @@
         </div>
     </div>
     <div class="card-footer">
-        <a href="{{ route('indexSale') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i></a>
-    </div>
+        <a href="{{ route('indexSale') }}" class="btn btn-secondary"><i class="fa fa-arrow-left"></i> Back</a>
+        <a href="{{ route('detailSale.export-pdf', $id) }}" class="btn btn-primary"><i class="fa fa-file-pdf"></i> Export PDF</a>
+    </div>    
 </div>
 @endsection

@@ -6,6 +6,8 @@ use App\Models\Customer;
 use App\Models\Sale;
 use App\Models\DetailSale;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 
 class AdminController extends Controller
@@ -85,6 +87,7 @@ class AdminController extends Controller
             'TglSale' => $request->TglSale,
             'cust_id' => $cust->id
         ]);
+
         $totalPrice = 0;
         for ($i = 0; $i < count($request->product_id); $i++) {
             $product = Product::findOrFail($request->product_id[$i]);
@@ -93,9 +96,12 @@ class AdminController extends Controller
                 'sale_id' => $sale->id,
                 'product_id' => $request->product_id[$i],
                 'JmlProduct' => $request->JmlProduct[$i],
-                'Subtotal' => $subtotal
+                'Subtotal' => $subtotal 
             ]);
             $totalPrice += $subtotal;
+            $product->update([
+                'Stok' => $product->Stok - $request->JmlProduct[$i]
+            ]);
         }
         $sale->update(['Harga' => $totalPrice]);
         $sale->update(['TtlPrice' => $totalPrice]);
@@ -105,8 +111,93 @@ class AdminController extends Controller
     {
         $title = "Sale";
         $saleDetail = DetailSale::where('sale_id', $id)->get();
-        return view('admin.sale.detail', compact('title', 'saleDetail'));
+        return view('admin.sale.detail', compact('title', 'saleDetail', 'id'));
     }
+
+    public function exportPDF($id)
+   {
+    $sale = Sale::where('id', $id)->first();
+    $pdf = PDF::loadView('admin.sale.invoice', compact('sale'));
+
+    return $pdf->download('detail_penjualan_'.$id.'.pdf');
+    }
+
+    public function deleteSale($id)
+    {
+        $sale = Sale::findOrFail($id);
+        $sale->delete();
+        return redirect()->route('indexSale')->with('success','Sale Deleted');
+    }
+
+    public function indexUser()
+    {
+        $user = User::all();
+        $title = "User";
+        return view('admin.user.index', compact('user', 'title'));
+    }
+
+    public function createUser()
+    {
+        $title = "User";
+        return view('admin.user.form', compact('title'));
+    }
+
+    public function storeUser(Request $request)
+    {
+        $validationErrors = $request->validate([
+            'email' => 'required|string|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'role' => 'required|string|in:admin,petugas'
+        ]);
+
+        $data = $request->only('email', 'password', 'role');
+        $data['password'] = bcrypt($data['password']);
+        $user = User::create($data);
+        
+
+        return redirect()->route('indexUser')->with('Succes', 'User Created!');
+    }
+
+    public function editUser($id)
+    {
+        $user = User::find($id);
+        $title = "User";
+
+        if(!$user) {
+            return redirect()->route('indexUser')->with('Errors', 'User not Found!');
+        }
+
+        return view('admin.user.form', compact('user', 'title'));
+    }
+
+    public function updateUser(Request $request, $id)
+    {
+        $request->validate([
+            'email' => 'required|string|email',
+            'role' => 'required|string|in:admin,petugas'
+        ]);
+        $data = $request->only('email', 'role');
+
+        if ($request->password) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $user = User::findOrFail($id);
+        $user->update($data);
+
+        return redirect()->route('indexUser')->with('Success', 'User Updated!');
+    }
+
+    public function deleteUser($id)
+    {
+        $user = User::findOrFail($id);
+        $user->delete();
+
+        return redirect()->route('indexUser')->with('Success', 'User Deleted!');
+    }
+    
+
+
 
    
 }
